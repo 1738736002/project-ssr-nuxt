@@ -1,0 +1,220 @@
+{
+  "resolvedId": "/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxtjs+mdc@0.8.3_magicast@0.3.5_rollup@4.21.3/node_modules/@nuxtjs/mdc/dist/runtime/components/prose/ProseH3.vue",
+  "transforms": [
+    {
+      "name": "vite:load-fallback",
+      "result": "<template>\n  <h3 :id=\"id\">\n    <a\n      v-if=\"id && generate\"\n      :href=\"`#${id}`\"\n    >\n      <slot />\n    </a>\n    <slot v-else />\n  </h3>\n</template>\n\n<script setup lang=\"ts\">\nimport { computed, useRuntimeConfig } from '#imports'\n\nconst props = defineProps<{ id?: string }>()\n\nconst { headings } = useRuntimeConfig().public.mdc\nconst generate = computed(() => props.id && ((typeof headings?.anchorLinks === 'boolean' && headings?.anchorLinks === true) || (typeof headings?.anchorLinks === 'object' && headings?.anchorLinks?.h3)))\n</script>\n",
+      "start": 1726449530723,
+      "end": 1726449530758,
+      "sourcemaps": null
+    },
+    {
+      "name": "nuxt:layer-aliasing",
+      "start": 1726449530758,
+      "end": 1726449530758,
+      "order": "pre"
+    },
+    {
+      "name": "nuxt:server-devonly:transform",
+      "start": 1726449530758,
+      "end": 1726449530758,
+      "order": "pre"
+    },
+    {
+      "name": "content-slot",
+      "start": 1726449530758,
+      "end": 1726449530758,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1726449530758,
+      "end": 1726449530758,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "start": 1726449530758,
+      "end": 1726449530758,
+      "order": "normal"
+    },
+    {
+      "name": "vite:json",
+      "start": 1726449530758,
+      "end": 1726449530758,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1726449530758,
+      "end": 1726449530758,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "result": "import _sfc_main from \"/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxtjs+mdc@0.8.3_magicast@0.3.5_rollup@4.21.3/node_modules/@nuxtjs/mdc/dist/runtime/components/prose/ProseH3.vue?vue&type=script&setup=true&lang.ts\";\nexport * from \"/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxtjs+mdc@0.8.3_magicast@0.3.5_rollup@4.21.3/node_modules/@nuxtjs/mdc/dist/runtime/components/prose/ProseH3.vue?vue&type=script&setup=true&lang.ts\";\nexport default _sfc_main;\n",
+      "start": 1726449530758,
+      "end": 1726449531018,
+      "order": "normal",
+      "sourcemaps": {
+        "mappings": ""
+      }
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1726449531018,
+      "end": 1726449531018,
+      "order": "normal"
+    },
+    {
+      "name": "replace",
+      "start": 1726449531018,
+      "end": 1726449531018,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:remove-plugin-metadata",
+      "start": 1726449531018,
+      "end": 1726449531018,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:prehydrate-transform",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:chunk-error",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:components:imports",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "replace",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "ssr-styles",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "vite:build-html",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "commonjs",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:composable-keys",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:imports-transform",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "post"
+    },
+    {
+      "name": "unctx:transform",
+      "start": 1726449531019,
+      "end": 1726449531019,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:pages-macros-transform",
+      "start": 1726449531020,
+      "end": 1726449531020,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:runtime-paths-dep",
+      "start": 1726449531020,
+      "end": 1726449531020,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:route-injection-plugin",
+      "start": 1726449531020,
+      "end": 1726449531020,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:components-loader",
+      "start": 1726449531020,
+      "end": 1726449531020,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:tree-shake-composables:transform",
+      "start": 1726449531020,
+      "end": 1726449531020,
+      "order": "post"
+    },
+    {
+      "name": "vite:build-import-analysis",
+      "start": 1726449531020,
+      "end": 1726449531020,
+      "order": "normal"
+    },
+    {
+      "name": "vite:reporter",
+      "start": 1726449531020,
+      "end": 1726449531020,
+      "order": "normal"
+    }
+  ]
+}

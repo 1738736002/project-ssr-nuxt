@@ -1,0 +1,272 @@
+{
+  "resolvedId": "/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@unhead+dom@1.11.2/node_modules/@unhead/dom/dist/index.mjs",
+  "transforms": [
+    {
+      "name": "vite:load-fallback",
+      "result": "import { HasElementTags, hashTag, normaliseProps, tagDedupeKey, defineHeadPlugin } from '@unhead/shared';\n\nasync function renderDOMHead(head, options = {}) {\n  const dom = options.document || head.resolvedOptions.document;\n  if (!dom || !head.dirty)\n    return;\n  const beforeRenderCtx = { shouldRender: true, tags: [] };\n  await head.hooks.callHook(\"dom:beforeRender\", beforeRenderCtx);\n  if (!beforeRenderCtx.shouldRender)\n    return;\n  if (head._domUpdatePromise) {\n    return head._domUpdatePromise;\n  }\n  head._domUpdatePromise = new Promise(async (resolve) => {\n    const tags = (await head.resolveTags()).map((tag) => ({\n      tag,\n      id: HasElementTags.has(tag.tag) ? hashTag(tag) : tag.tag,\n      shouldRender: true\n    }));\n    let state = head._dom;\n    if (!state) {\n      state = {\n        elMap: { htmlAttrs: dom.documentElement, bodyAttrs: dom.body }\n      };\n      const takenDedupeKeys = /* @__PURE__ */ new Set();\n      for (const key of [\"body\", \"head\"]) {\n        const children = dom[key]?.children;\n        for (const c of children) {\n          const tag = c.tagName.toLowerCase();\n          if (!HasElementTags.has(tag)) {\n            continue;\n          }\n          const t = {\n            tag,\n            props: await normaliseProps(\n              c.getAttributeNames().reduce((props, name) => ({ ...props, [name]: c.getAttribute(name) }), {})\n            ),\n            innerHTML: c.innerHTML\n          };\n          const dedupeKey = tagDedupeKey(t);\n          let d = dedupeKey;\n          let i = 1;\n          while (d && takenDedupeKeys.has(d))\n            d = `${dedupeKey}:${i++}`;\n          if (d) {\n            t._d = d;\n            takenDedupeKeys.add(d);\n          }\n          state.elMap[c.getAttribute(\"data-hid\") || hashTag(t)] = c;\n        }\n      }\n    }\n    state.pendingSideEffects = { ...state.sideEffects };\n    state.sideEffects = {};\n    function track(id, scope, fn) {\n      const k = `${id}:${scope}`;\n      state.sideEffects[k] = fn;\n      delete state.pendingSideEffects[k];\n    }\n    function trackCtx({ id, $el, tag }) {\n      const isAttrTag = tag.tag.endsWith(\"Attrs\");\n      state.elMap[id] = $el;\n      if (!isAttrTag) {\n        if (tag.textContent && tag.textContent !== $el.textContent) {\n          $el.textContent = tag.textContent;\n        }\n        if (tag.innerHTML && tag.innerHTML !== $el.innerHTML) {\n          $el.innerHTML = tag.innerHTML;\n        }\n        track(id, \"el\", () => {\n          state.elMap[id]?.remove();\n          delete state.elMap[id];\n        });\n      }\n      if (tag._eventHandlers) {\n        for (const k in tag._eventHandlers) {\n          if (!Object.prototype.hasOwnProperty.call(tag._eventHandlers, k)) {\n            continue;\n          }\n          if ($el.getAttribute(`data-${k}`) !== \"\") {\n            (tag.tag === \"bodyAttrs\" ? dom.defaultView : $el).addEventListener(\n              // onload -> load\n              k.substring(2),\n              tag._eventHandlers[k].bind($el)\n            );\n            $el.setAttribute(`data-${k}`, \"\");\n          }\n        }\n      }\n      for (const k in tag.props) {\n        if (!Object.prototype.hasOwnProperty.call(tag.props, k)) {\n          continue;\n        }\n        const value = tag.props[k];\n        const ck = `attr:${k}`;\n        if (k === \"class\") {\n          if (!value) {\n            continue;\n          }\n          for (const c of value.split(\" \")) {\n            isAttrTag && track(id, `${ck}:${c}`, () => $el.classList.remove(c));\n            !$el.classList.contains(c) && $el.classList.add(c);\n          }\n        } else if (k === \"style\") {\n          if (!value) {\n            continue;\n          }\n          for (const c of value.split(\";\")) {\n            const propIndex = c.indexOf(\":\");\n            const k2 = c.substring(0, propIndex).trim();\n            const v = c.substring(propIndex + 1).trim();\n            track(id, `${ck}:${k2}`, () => {\n              $el.style.removeProperty(k2);\n            });\n            $el.style.setProperty(k2, v);\n          }\n        } else {\n          $el.getAttribute(k) !== value && $el.setAttribute(k, value === true ? \"\" : String(value));\n          isAttrTag && track(id, ck, () => $el.removeAttribute(k));\n        }\n      }\n    }\n    const pending = [];\n    const frag = {\n      bodyClose: void 0,\n      bodyOpen: void 0,\n      head: void 0\n    };\n    for (const ctx of tags) {\n      const { tag, shouldRender, id } = ctx;\n      if (!shouldRender)\n        continue;\n      if (tag.tag === \"title\") {\n        dom.title = tag.textContent;\n        continue;\n      }\n      ctx.$el = ctx.$el || state.elMap[id];\n      if (ctx.$el) {\n        trackCtx(ctx);\n      } else if (HasElementTags.has(tag.tag)) {\n        pending.push(ctx);\n      }\n    }\n    for (const ctx of pending) {\n      const pos = ctx.tag.tagPosition || \"head\";\n      ctx.$el = dom.createElement(ctx.tag.tag);\n      trackCtx(ctx);\n      frag[pos] = frag[pos] || dom.createDocumentFragment();\n      frag[pos].appendChild(ctx.$el);\n    }\n    for (const ctx of tags)\n      await head.hooks.callHook(\"dom:renderTag\", ctx, dom, track);\n    frag.head && dom.head.appendChild(frag.head);\n    frag.bodyOpen && dom.body.insertBefore(frag.bodyOpen, dom.body.firstChild);\n    frag.bodyClose && dom.body.appendChild(frag.bodyClose);\n    for (const k in state.pendingSideEffects) {\n      state.pendingSideEffects[k]();\n    }\n    head._dom = state;\n    await head.hooks.callHook(\"dom:rendered\", { renders: tags });\n    resolve();\n  }).finally(() => {\n    head._domUpdatePromise = void 0;\n    head.dirty = false;\n  });\n  return head._domUpdatePromise;\n}\n\nfunction debouncedRenderDOMHead(head, options = {}) {\n  const fn = options.delayFn || ((fn2) => setTimeout(fn2, 10));\n  return head._domDebouncedUpdatePromise = head._domDebouncedUpdatePromise || new Promise((resolve) => fn(() => {\n    return renderDOMHead(head, options).then(() => {\n      delete head._domDebouncedUpdatePromise;\n      resolve();\n    });\n  }));\n}\n\n// @__NO_SIDE_EFFECTS__\nfunction DomPlugin(options) {\n  return defineHeadPlugin((head) => {\n    const initialPayload = head.resolvedOptions.document?.head.querySelector('script[id=\"unhead:payload\"]')?.innerHTML || false;\n    if (initialPayload) {\n      head.push(JSON.parse(initialPayload));\n    }\n    return {\n      mode: \"client\",\n      hooks: {\n        \"entries:updated\": (head2) => {\n          debouncedRenderDOMHead(head2, options);\n        }\n      }\n    };\n  });\n}\n\nexport { DomPlugin, debouncedRenderDOMHead, renderDOMHead };\n",
+      "start": 1726449532126,
+      "end": 1726449532160,
+      "sourcemaps": null
+    },
+    {
+      "name": "nuxt:layer-aliasing",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "pre"
+    },
+    {
+      "name": "nuxt:layer-aliasing",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "pre"
+    },
+    {
+      "name": "nuxt:server-devonly:transform",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "pre"
+    },
+    {
+      "name": "nuxt:server-devonly:transform",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "pre"
+    },
+    {
+      "name": "content-slot",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "pre"
+    },
+    {
+      "name": "content-slot",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "pre"
+    },
+    {
+      "name": "server-only-component-transform",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "vite:json",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "replace",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "replace",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:remove-plugin-metadata",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:remove-plugin-metadata",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:prehydrate-transform",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:prehydrate-transform",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:components:imports",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "replace",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "ssr-styles",
+      "start": 1726449532160,
+      "end": 1726449532160,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "result": "import { HasElementTags, hashTag, normaliseProps, tagDedupeKey, defineHeadPlugin } from \"@unhead/shared\";\nasync function renderDOMHead(head, options = {}) {\n  const dom = options.document || head.resolvedOptions.document;\n  if (!dom || !head.dirty)\n    return;\n  const beforeRenderCtx = { shouldRender: true, tags: [] };\n  await head.hooks.callHook(\"dom:beforeRender\", beforeRenderCtx);\n  if (!beforeRenderCtx.shouldRender)\n    return;\n  if (head._domUpdatePromise) {\n    return head._domUpdatePromise;\n  }\n  head._domUpdatePromise = new Promise(async (resolve) => {\n    const tags = (await head.resolveTags()).map((tag) => ({\n      tag,\n      id: HasElementTags.has(tag.tag) ? hashTag(tag) : tag.tag,\n      shouldRender: true\n    }));\n    let state = head._dom;\n    if (!state) {\n      state = {\n        elMap: { htmlAttrs: dom.documentElement, bodyAttrs: dom.body }\n      };\n      const takenDedupeKeys = /* @__PURE__ */ new Set();\n      for (const key of [\"body\", \"head\"]) {\n        const children = dom[key]?.children;\n        for (const c of children) {\n          const tag = c.tagName.toLowerCase();\n          if (!HasElementTags.has(tag)) {\n            continue;\n          }\n          const t = {\n            tag,\n            props: await normaliseProps(\n              c.getAttributeNames().reduce((props, name) => ({ ...props, [name]: c.getAttribute(name) }), {})\n            ),\n            innerHTML: c.innerHTML\n          };\n          const dedupeKey = tagDedupeKey(t);\n          let d = dedupeKey;\n          let i = 1;\n          while (d && takenDedupeKeys.has(d))\n            d = `${dedupeKey}:${i++}`;\n          if (d) {\n            t._d = d;\n            takenDedupeKeys.add(d);\n          }\n          state.elMap[c.getAttribute(\"data-hid\") || hashTag(t)] = c;\n        }\n      }\n    }\n    state.pendingSideEffects = { ...state.sideEffects };\n    state.sideEffects = {};\n    function track(id, scope, fn) {\n      const k = `${id}:${scope}`;\n      state.sideEffects[k] = fn;\n      delete state.pendingSideEffects[k];\n    }\n    function trackCtx({ id, $el, tag }) {\n      const isAttrTag = tag.tag.endsWith(\"Attrs\");\n      state.elMap[id] = $el;\n      if (!isAttrTag) {\n        if (tag.textContent && tag.textContent !== $el.textContent) {\n          $el.textContent = tag.textContent;\n        }\n        if (tag.innerHTML && tag.innerHTML !== $el.innerHTML) {\n          $el.innerHTML = tag.innerHTML;\n        }\n        track(id, \"el\", () => {\n          state.elMap[id]?.remove();\n          delete state.elMap[id];\n        });\n      }\n      if (tag._eventHandlers) {\n        for (const k in tag._eventHandlers) {\n          if (!Object.prototype.hasOwnProperty.call(tag._eventHandlers, k)) {\n            continue;\n          }\n          if ($el.getAttribute(`data-${k}`) !== \"\") {\n            (tag.tag === \"bodyAttrs\" ? dom.defaultView : $el).addEventListener(\n              // onload -> load\n              k.substring(2),\n              tag._eventHandlers[k].bind($el)\n            );\n            $el.setAttribute(`data-${k}`, \"\");\n          }\n        }\n      }\n      for (const k in tag.props) {\n        if (!Object.prototype.hasOwnProperty.call(tag.props, k)) {\n          continue;\n        }\n        const value = tag.props[k];\n        const ck = `attr:${k}`;\n        if (k === \"class\") {\n          if (!value) {\n            continue;\n          }\n          for (const c of value.split(\" \")) {\n            isAttrTag && track(id, `${ck}:${c}`, () => $el.classList.remove(c));\n            !$el.classList.contains(c) && $el.classList.add(c);\n          }\n        } else if (k === \"style\") {\n          if (!value) {\n            continue;\n          }\n          for (const c of value.split(\";\")) {\n            const propIndex = c.indexOf(\":\");\n            const k2 = c.substring(0, propIndex).trim();\n            const v = c.substring(propIndex + 1).trim();\n            track(id, `${ck}:${k2}`, () => {\n              $el.style.removeProperty(k2);\n            });\n            $el.style.setProperty(k2, v);\n          }\n        } else {\n          $el.getAttribute(k) !== value && $el.setAttribute(k, value === true ? \"\" : String(value));\n          isAttrTag && track(id, ck, () => $el.removeAttribute(k));\n        }\n      }\n    }\n    const pending = [];\n    const frag = {\n      bodyClose: void 0,\n      bodyOpen: void 0,\n      head: void 0\n    };\n    for (const ctx of tags) {\n      const { tag, shouldRender, id } = ctx;\n      if (!shouldRender)\n        continue;\n      if (tag.tag === \"title\") {\n        dom.title = tag.textContent;\n        continue;\n      }\n      ctx.$el = ctx.$el || state.elMap[id];\n      if (ctx.$el) {\n        trackCtx(ctx);\n      } else if (HasElementTags.has(tag.tag)) {\n        pending.push(ctx);\n      }\n    }\n    for (const ctx of pending) {\n      const pos = ctx.tag.tagPosition || \"head\";\n      ctx.$el = dom.createElement(ctx.tag.tag);\n      trackCtx(ctx);\n      frag[pos] = frag[pos] || dom.createDocumentFragment();\n      frag[pos].appendChild(ctx.$el);\n    }\n    for (const ctx of tags)\n      await head.hooks.callHook(\"dom:renderTag\", ctx, dom, track);\n    frag.head && dom.head.appendChild(frag.head);\n    frag.bodyOpen && dom.body.insertBefore(frag.bodyOpen, dom.body.firstChild);\n    frag.bodyClose && dom.body.appendChild(frag.bodyClose);\n    for (const k in state.pendingSideEffects) {\n      state.pendingSideEffects[k]();\n    }\n    head._dom = state;\n    await head.hooks.callHook(\"dom:rendered\", { renders: tags });\n    resolve();\n  }).finally(() => {\n    head._domUpdatePromise = void 0;\n    head.dirty = false;\n  });\n  return head._domUpdatePromise;\n}\nfunction debouncedRenderDOMHead(head, options = {}) {\n  const fn = options.delayFn || ((fn2) => setTimeout(fn2, 10));\n  return head._domDebouncedUpdatePromise = head._domDebouncedUpdatePromise || new Promise((resolve) => fn(() => {\n    return renderDOMHead(head, options).then(() => {\n      delete head._domDebouncedUpdatePromise;\n      resolve();\n    });\n  }));\n}\n// @__NO_SIDE_EFFECTS__\nfunction DomPlugin(options) {\n  return defineHeadPlugin((head) => {\n    const initialPayload = head.resolvedOptions.document?.head.querySelector('script[id=\"unhead:payload\"]')?.innerHTML || false;\n    if (initialPayload) {\n      head.push(JSON.parse(initialPayload));\n    }\n    return {\n      mode: \"client\",\n      hooks: {\n        \"entries:updated\": (head2) => {\n          debouncedRenderDOMHead(head2, options);\n        }\n      }\n    };\n  });\n}\nexport { DomPlugin, debouncedRenderDOMHead, renderDOMHead };\n",
+      "start": 1726449532160,
+      "end": 1726449532309,
+      "order": "normal",
+      "sourcemaps": "{\n  \"version\": 3,\n  \"sources\": [\"/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@unhead+dom@1.11.2/node_modules/@unhead/dom/dist/index.mjs\"],\n  \"sourcesContent\": [\"import { HasElementTags, hashTag, normaliseProps, tagDedupeKey, defineHeadPlugin } from '@unhead/shared';\\n\\nasync function renderDOMHead(head, options = {}) {\\n  const dom = options.document || head.resolvedOptions.document;\\n  if (!dom || !head.dirty)\\n    return;\\n  const beforeRenderCtx = { shouldRender: true, tags: [] };\\n  await head.hooks.callHook(\\\"dom:beforeRender\\\", beforeRenderCtx);\\n  if (!beforeRenderCtx.shouldRender)\\n    return;\\n  if (head._domUpdatePromise) {\\n    return head._domUpdatePromise;\\n  }\\n  head._domUpdatePromise = new Promise(async (resolve) => {\\n    const tags = (await head.resolveTags()).map((tag) => ({\\n      tag,\\n      id: HasElementTags.has(tag.tag) ? hashTag(tag) : tag.tag,\\n      shouldRender: true\\n    }));\\n    let state = head._dom;\\n    if (!state) {\\n      state = {\\n        elMap: { htmlAttrs: dom.documentElement, bodyAttrs: dom.body }\\n      };\\n      const takenDedupeKeys = /* @__PURE__ */ new Set();\\n      for (const key of [\\\"body\\\", \\\"head\\\"]) {\\n        const children = dom[key]?.children;\\n        for (const c of children) {\\n          const tag = c.tagName.toLowerCase();\\n          if (!HasElementTags.has(tag)) {\\n            continue;\\n          }\\n          const t = {\\n            tag,\\n            props: await normaliseProps(\\n              c.getAttributeNames().reduce((props, name) => ({ ...props, [name]: c.getAttribute(name) }), {})\\n            ),\\n            innerHTML: c.innerHTML\\n          };\\n          const dedupeKey = tagDedupeKey(t);\\n          let d = dedupeKey;\\n          let i = 1;\\n          while (d && takenDedupeKeys.has(d))\\n            d = `${dedupeKey}:${i++}`;\\n          if (d) {\\n            t._d = d;\\n            takenDedupeKeys.add(d);\\n          }\\n          state.elMap[c.getAttribute(\\\"data-hid\\\") || hashTag(t)] = c;\\n        }\\n      }\\n    }\\n    state.pendingSideEffects = { ...state.sideEffects };\\n    state.sideEffects = {};\\n    function track(id, scope, fn) {\\n      const k = `${id}:${scope}`;\\n      state.sideEffects[k] = fn;\\n      delete state.pendingSideEffects[k];\\n    }\\n    function trackCtx({ id, $el, tag }) {\\n      const isAttrTag = tag.tag.endsWith(\\\"Attrs\\\");\\n      state.elMap[id] = $el;\\n      if (!isAttrTag) {\\n        if (tag.textContent && tag.textContent !== $el.textContent) {\\n          $el.textContent = tag.textContent;\\n        }\\n        if (tag.innerHTML && tag.innerHTML !== $el.innerHTML) {\\n          $el.innerHTML = tag.innerHTML;\\n        }\\n        track(id, \\\"el\\\", () => {\\n          state.elMap[id]?.remove();\\n          delete state.elMap[id];\\n        });\\n      }\\n      if (tag._eventHandlers) {\\n        for (const k in tag._eventHandlers) {\\n          if (!Object.prototype.hasOwnProperty.call(tag._eventHandlers, k)) {\\n            continue;\\n          }\\n          if ($el.getAttribute(`data-${k}`) !== \\\"\\\") {\\n            (tag.tag === \\\"bodyAttrs\\\" ? dom.defaultView : $el).addEventListener(\\n              // onload -> load\\n              k.substring(2),\\n              tag._eventHandlers[k].bind($el)\\n            );\\n            $el.setAttribute(`data-${k}`, \\\"\\\");\\n          }\\n        }\\n      }\\n      for (const k in tag.props) {\\n        if (!Object.prototype.hasOwnProperty.call(tag.props, k)) {\\n          continue;\\n        }\\n        const value = tag.props[k];\\n        const ck = `attr:${k}`;\\n        if (k === \\\"class\\\") {\\n          if (!value) {\\n            continue;\\n          }\\n          for (const c of value.split(\\\" \\\")) {\\n            isAttrTag && track(id, `${ck}:${c}`, () => $el.classList.remove(c));\\n            !$el.classList.contains(c) && $el.classList.add(c);\\n          }\\n        } else if (k === \\\"style\\\") {\\n          if (!value) {\\n            continue;\\n          }\\n          for (const c of value.split(\\\";\\\")) {\\n            const propIndex = c.indexOf(\\\":\\\");\\n            const k2 = c.substring(0, propIndex).trim();\\n            const v = c.substring(propIndex + 1).trim();\\n            track(id, `${ck}:${k2}`, () => {\\n              $el.style.removeProperty(k2);\\n            });\\n            $el.style.setProperty(k2, v);\\n          }\\n        } else {\\n          $el.getAttribute(k) !== value && $el.setAttribute(k, value === true ? \\\"\\\" : String(value));\\n          isAttrTag && track(id, ck, () => $el.removeAttribute(k));\\n        }\\n      }\\n    }\\n    const pending = [];\\n    const frag = {\\n      bodyClose: void 0,\\n      bodyOpen: void 0,\\n      head: void 0\\n    };\\n    for (const ctx of tags) {\\n      const { tag, shouldRender, id } = ctx;\\n      if (!shouldRender)\\n        continue;\\n      if (tag.tag === \\\"title\\\") {\\n        dom.title = tag.textContent;\\n        continue;\\n      }\\n      ctx.$el = ctx.$el || state.elMap[id];\\n      if (ctx.$el) {\\n        trackCtx(ctx);\\n      } else if (HasElementTags.has(tag.tag)) {\\n        pending.push(ctx);\\n      }\\n    }\\n    for (const ctx of pending) {\\n      const pos = ctx.tag.tagPosition || \\\"head\\\";\\n      ctx.$el = dom.createElement(ctx.tag.tag);\\n      trackCtx(ctx);\\n      frag[pos] = frag[pos] || dom.createDocumentFragment();\\n      frag[pos].appendChild(ctx.$el);\\n    }\\n    for (const ctx of tags)\\n      await head.hooks.callHook(\\\"dom:renderTag\\\", ctx, dom, track);\\n    frag.head && dom.head.appendChild(frag.head);\\n    frag.bodyOpen && dom.body.insertBefore(frag.bodyOpen, dom.body.firstChild);\\n    frag.bodyClose && dom.body.appendChild(frag.bodyClose);\\n    for (const k in state.pendingSideEffects) {\\n      state.pendingSideEffects[k]();\\n    }\\n    head._dom = state;\\n    await head.hooks.callHook(\\\"dom:rendered\\\", { renders: tags });\\n    resolve();\\n  }).finally(() => {\\n    head._domUpdatePromise = void 0;\\n    head.dirty = false;\\n  });\\n  return head._domUpdatePromise;\\n}\\n\\nfunction debouncedRenderDOMHead(head, options = {}) {\\n  const fn = options.delayFn || ((fn2) => setTimeout(fn2, 10));\\n  return head._domDebouncedUpdatePromise = head._domDebouncedUpdatePromise || new Promise((resolve) => fn(() => {\\n    return renderDOMHead(head, options).then(() => {\\n      delete head._domDebouncedUpdatePromise;\\n      resolve();\\n    });\\n  }));\\n}\\n\\n// @__NO_SIDE_EFFECTS__\\nfunction DomPlugin(options) {\\n  return defineHeadPlugin((head) => {\\n    const initialPayload = head.resolvedOptions.document?.head.querySelector('script[id=\\\"unhead:payload\\\"]')?.innerHTML || false;\\n    if (initialPayload) {\\n      head.push(JSON.parse(initialPayload));\\n    }\\n    return {\\n      mode: \\\"client\\\",\\n      hooks: {\\n        \\\"entries:updated\\\": (head2) => {\\n          debouncedRenderDOMHead(head2, options);\\n        }\\n      }\\n    };\\n  });\\n}\\n\\nexport { DomPlugin, debouncedRenderDOMHead, renderDOMHead };\\n\"],\n  \"mappings\": \"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\",\n  \"names\": []\n}\n"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    },
+    {
+      "name": "vite:build-html",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    },
+    {
+      "name": "commonjs",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:composable-keys",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:composable-keys",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:imports-transform",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:imports-transform",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "unctx:transform",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "unctx:transform",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:pages-macros-transform",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:pages-macros-transform",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:tree-shake-template",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:components-loader",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:tree-shake-composables:transform",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "post"
+    },
+    {
+      "name": "vite:build-import-analysis",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    },
+    {
+      "name": "vite:reporter",
+      "start": 1726449532309,
+      "end": 1726449532309,
+      "order": "normal"
+    }
+  ]
+}

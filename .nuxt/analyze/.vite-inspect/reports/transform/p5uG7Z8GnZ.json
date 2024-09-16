@@ -1,0 +1,224 @@
+{
+  "resolvedId": "/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxtjs+mdc@0.8.3_magicast@0.3.5_rollup@4.21.3/node_modules/@nuxtjs/mdc/dist/runtime/components/prose/ProseH2.vue?nuxt_component=async&nuxt_component_name=ProseH2&nuxt_component_export=default",
+  "transforms": [
+    {
+      "name": "vite:load-fallback",
+      "result": "<template>\n  <h2 :id=\"id\">\n    <a\n      v-if=\"id && generate\"\n      :href=\"`#${id}`\"\n    >\n      <slot />\n    </a>\n    <slot v-else />\n  </h2>\n</template>\n\n<script setup lang=\"ts\">\nimport { computed, useRuntimeConfig } from '#imports'\n\nconst props = defineProps<{ id?: string }>()\n\nconst { headings } = useRuntimeConfig().public.mdc\nconst generate = computed(() => props.id && ((typeof headings?.anchorLinks === 'boolean' && headings?.anchorLinks === true) || (typeof headings?.anchorLinks === 'object' && headings?.anchorLinks?.h2)))\n</script>\n",
+      "start": 1726449530479,
+      "end": 1726449530607,
+      "sourcemaps": null
+    },
+    {
+      "name": "nuxt:layer-aliasing",
+      "start": 1726449530607,
+      "end": 1726449530607,
+      "order": "pre"
+    },
+    {
+      "name": "nuxt:server-devonly:transform",
+      "start": 1726449530607,
+      "end": 1726449530607,
+      "order": "pre"
+    },
+    {
+      "name": "content-slot",
+      "start": 1726449530607,
+      "end": 1726449530607,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1726449530607,
+      "end": 1726449530607,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "start": 1726449530607,
+      "end": 1726449530607,
+      "order": "normal"
+    },
+    {
+      "name": "vite:json",
+      "start": 1726449530607,
+      "end": 1726449530607,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1726449530607,
+      "end": 1726449530607,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "result": "import _sfc_main from \"/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxtjs+mdc@0.8.3_magicast@0.3.5_rollup@4.21.3/node_modules/@nuxtjs/mdc/dist/runtime/components/prose/ProseH2.vue?vue&type=script&setup=true&lang.ts\";\nexport * from \"/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxtjs+mdc@0.8.3_magicast@0.3.5_rollup@4.21.3/node_modules/@nuxtjs/mdc/dist/runtime/components/prose/ProseH2.vue?vue&type=script&setup=true&lang.ts\";\nexport default _sfc_main;\n",
+      "start": 1726449530607,
+      "end": 1726449530613,
+      "order": "normal",
+      "sourcemaps": {
+        "mappings": ""
+      }
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1726449530613,
+      "end": 1726449530613,
+      "order": "normal"
+    },
+    {
+      "name": "replace",
+      "start": 1726449530613,
+      "end": 1726449530613,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:remove-plugin-metadata",
+      "start": 1726449530613,
+      "end": 1726449530613,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:prehydrate-transform",
+      "start": 1726449530614,
+      "end": 1726449530614,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:chunk-error",
+      "start": 1726449530614,
+      "end": 1726449530614,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:components:imports",
+      "result": "import { defineAsyncComponent } from \"vue\"\nexport default defineAsyncComponent(() => import(\"/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxtjs+mdc@0.8.3_magicast@0.3.5_rollup@4.21.3/node_modules/@nuxtjs/mdc/dist/runtime/components/prose/ProseH2.vue\").then(r => r[\"default\"] || r.default || r))",
+      "start": 1726449530614,
+      "end": 1726449530614,
+      "order": "normal",
+      "sourcemaps": null
+    },
+    {
+      "name": "replace",
+      "start": 1726449530614,
+      "end": 1726449530614,
+      "order": "normal"
+    },
+    {
+      "name": "ssr-styles",
+      "start": 1726449530614,
+      "end": 1726449530614,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1726449530614,
+      "end": 1726449530614,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1726449530614,
+      "end": 1726449530614,
+      "order": "normal"
+    },
+    {
+      "name": "vite:build-html",
+      "start": 1726449530614,
+      "end": 1726449530614,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "normal"
+    },
+    {
+      "name": "commonjs",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "normal"
+    },
+    {
+      "name": "nuxt:composable-keys",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:imports-transform",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "post"
+    },
+    {
+      "name": "unctx:transform",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:pages-macros-transform",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:runtime-paths-dep",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:route-injection-plugin",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:components-loader",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "post"
+    },
+    {
+      "name": "nuxt:tree-shake-composables:transform",
+      "start": 1726449530615,
+      "end": 1726449530615,
+      "order": "post"
+    },
+    {
+      "name": "vite:build-import-analysis",
+      "result": "import { __vitePreload } from \"\u0000vite/preload-helper.js\";import { defineAsyncComponent } from \"vue\"\nexport default defineAsyncComponent(() => __vitePreload(() => import(\"/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxtjs+mdc@0.8.3_magicast@0.3.5_rollup@4.21.3/node_modules/@nuxtjs/mdc/dist/runtime/components/prose/ProseH2.vue\"),__VITE_IS_MODERN__?__VITE_PRELOAD__:void 0,import.meta.url).then(r => r[\"default\"] || r.default || r))",
+      "start": 1726449530615,
+      "end": 1726449530616,
+      "order": "normal",
+      "sourcemaps": null
+    },
+    {
+      "name": "vite:reporter",
+      "start": 1726449530616,
+      "end": 1726449530616,
+      "order": "normal"
+    }
+  ]
+}

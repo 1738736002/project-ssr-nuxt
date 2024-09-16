@@ -1,0 +1,11 @@
+{
+  "resolvedId": "\u0000/Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@vue+shared@3.5.5/node_modules/@vue/shared/dist/shared.cjs.prod.js?commonjs-exports",
+  "transforms": [
+    {
+      "name": "commonjs",
+      "result": "var shared_cjs_prod = {}; export {shared_cjs_prod as __exports}",
+      "start": 1726449532541,
+      "end": 1726449532541
+    }
+  ]
+}
