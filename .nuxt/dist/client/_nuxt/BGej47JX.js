@@ -1,1 +1,0 @@
-import{_ as o,o as r,c as t,r as a}from"./D2h9e-ru.js";const c={},s={style:{"background-color":"aquamarine"}};function n(e,_){return r(),t("div",s,[a(e.$slots,"default")])}const l=o(c,[["render",n]]);export{l as default};

@@ -1,1 +1,1 @@
-export { default } from "file:///Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxt+vite-builder@3.13.1_@types+node@22.5.5_eslint@9.10.0_jiti@1.21.6__magicast@0.3.5_option_4ywoopvi2uw6uu4ifeo6arc4oa/node_modules/@nuxt/vite-builder/dist/runtime/client.manifest.mjs"
+export { default } from "file:///Users/mr.xuww/Documents/project/project-ssr-nuxt/node_modules/.pnpm/@nuxt+vite-builder@3.13.1_@types+node@22.5.5_eslint@9.10.0_jiti@1.21.6__magicast@0.3.5_option_ek54dovtumqlhii4owcwvxurju/node_modules/@nuxt/vite-builder/dist/runtime/client.manifest.mjs"
